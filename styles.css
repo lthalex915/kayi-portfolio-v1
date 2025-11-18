@@ -1,0 +1,520 @@
+/* --- CSS VARIABLES & RESET --- */
+:root {
+    --bg-color: #050505;
+    --text-primary: #E0E0E0;
+    --text-secondary: #888888;
+    --accent-yellow: #fae451; /* Light Cream/Yellow */
+    --accent-gray: #2A2A2A;
+    --font-serif: 'Cormorant Garamond', serif;
+    --font-sans: 'Inter', sans-serif;
+    --easing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: none; /* Hiding default cursor for custom one */
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    overflow: hidden; /* Handled by main container */
+    height: 100vh;
+    width: 100vw;
+}
+
+/* --- CUSTOM CURSOR --- */
+.cursor-dot,
+.cursor-outline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-yellow);
+}
+
+.cursor-outline {
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(242, 232, 201, 0.5);
+    transition: width 0.2s, height 0.2s, background-color 0.2s;
+}
+
+body.hovered .cursor-outline {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(242, 232, 201, 0.1);
+    border-color: var(--accent-yellow);
+}
+
+/* --- LAYOUT & SCROLL SNAP --- */
+main {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+
+section {
+    height: 100vh;
+    width: 100%;
+    scroll-snap-align: start;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 10vw;
+    overflow: hidden;
+}
+
+/* --- NAVIGATION --- */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    mix-blend-mode: difference;
+}
+
+.logo {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--accent-yellow);
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 3rem;
+    list-style: none;
+}
+
+.nav-links a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0%;
+    height: 1px;
+    background-color: var(--accent-yellow);
+    transition: width 0.4s var(--easing);
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+/* --- PROGRESS INDICATOR --- */
+.progress-bar {
+    position: fixed;
+    right: 4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    z-index: 100;
+}
+
+.progress-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--accent-gray);
+    border-radius: 50%;
+    transition: all 0.3s;
+    cursor: none; /* Handled by custom cursor */
+}
+
+.progress-dot.active {
+    background-color: var(--accent-yellow);
+    transform: scale(1.5);
+}
+
+/* --- TYPOGRAPHY & ANIMATIONS --- */
+h1, h2 {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    line-height: 1.1;
+}
+
+.reveal-text {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 1s var(--easing);
+}
+
+section.visible .reveal-text {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.delay-1 { transition-delay: 0.1s; }
+.delay-2 { transition-delay: 0.2s; }
+.delay-3 { transition-delay: 0.3s; }
+
+/* --- SECTION 1: HERO --- */
+#home {
+    align-items: flex-start;
+}
+
+.hero-title {
+    font-size: 8vw;
+    color: var(--text-primary);
+    z-index: 2;
+}
+
+.hero-title span {
+    display: block;
+    color: var(--accent-yellow);
+    font-style: italic;
+}
+
+.hero-subtitle {
+    margin-top: 2rem;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+/* Abstract Yellow Gradient Light Effect (blurred + grainy, animated) */
+.light-leak {
+    position: absolute;
+    /* place the glow on the right, vertically centered */
+    top: 50%;
+    right: 8%;
+    width: 28rem;
+    height: 28rem;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 50% 40%, rgba(250, 228, 81, 0.9) 0%, rgba(250, 228, 81, 0.0) 60%),
+        radial-gradient(circle at 30% 70%, rgba(255, 210, 70, 0.6) 0%, rgba(255, 210, 70, 0.0) 65%),
+        /* soft white core */
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.0) 45%),
+        /* subtle grain using repeating radial pattern */
+        repeating-radial-gradient(circle at 50% 50%,
+            rgba(255, 255, 255, 0.08) 0px,
+            rgba(255, 255, 255, 0.08) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+    filter: blur(45px);
+    opacity: 0.85;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: heroGlow 18s ease-in-out infinite alternate;
+}
+
+@media (max-width: 768px) {
+    /* keep glow on the right and smaller on mobile */
+    .light-leak {
+        top: 50%;
+        right: 5%;
+        width: 18rem;
+        height: 18rem;
+        transform: translateY(-50%);
+    }
+}
+
+@keyframes heroGlow {
+    0% {
+        transform: translate3d(-6%, 0, 0) scale(1);
+        opacity: 0.55;
+    }
+    50% {
+        transform: translate3d(4%, -4%, 0) scale(1.08);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate3d(0, 4%, 0) scale(1.02);
+        opacity: 0.7;
+    }
+}
+
+/* --- SECTION 2: ABOUT --- */
+#about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.about-content h2 {
+    font-size: 4rem;
+    margin-bottom: 2rem;
+}
+
+.about-content p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+.abstract-camera {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CSS Drawing of Abstract Aperture */
+.aperture-ring {
+    width: 300px;
+    height: 300px;
+    border: 1px solid var(--accent-gray);
+    border-radius: 50%;
+    position: absolute;
+    animation: rotate 20s linear infinite;
+}
+
+.aperture-ring::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border: 1px solid var(--accent-yellow);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.lens-flare {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(242, 232, 201, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    top: 30%;
+    left: 30%;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* --- SECTION 3: PORTFOLIO (Abstract Placeholders) --- */
+#portfolio {
+    align-items: center;
+}
+
+.portfolio-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+}
+
+.portfolio-header h2 {
+    font-size: 3rem;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    width: 100%;
+    height: 50vh;
+}
+
+.gallery-item {
+    position: relative;
+    border: 1px solid var(--accent-gray);
+    overflow: hidden;
+    transition: border-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.5rem;
+}
+
+.gallery-item:hover {
+    border-color: var(--accent-yellow);
+}
+
+/* Abstract Art for Placeholders */
+.art-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.3;
+    transition: opacity 0.5s;
+}
+
+.gallery-item:hover .art-bg {
+    opacity: 0.6;
+}
+
+.art-1 { background: linear-gradient(45deg, #1a1a1a, #2a2a2a); }
+.art-2 { background: radial-gradient(circle at top right, #2a2a2a, #050505); }
+.art-3 { background: linear-gradient(135deg, #111, #333); }
+
+/* Geometric shapes inside frames */
+.geo-shape {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.circle { width: 100px; height: 100px; border-radius: 50%; }
+.square { width: 80px; height: 80px; transform: translate(-50%, -50%) rotate(45deg); }
+.line { width: 2px; height: 120px; background: rgba(255,255,255,0.1); }
+
+.item-info {
+    z-index: 1;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.4s var(--easing);
+}
+
+.gallery-item:hover .item-info {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.item-title {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    color: var(--accent-yellow);
+}
+
+.item-cat {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* --- SECTION 4: CONTACT --- */
+#contact {
+    align-items: center;
+    text-align: center;
+}
+
+.contact-container {
+    max-width: 600px;
+    width: 100%;
+}
+
+.contact-title {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    color: var(--accent-yellow);
+}
+
+.contact-text {
+    margin-bottom: 3rem;
+    color: var(--text-secondary);
+}
+
+.contact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2.5rem;
+    border: 1px solid var(--accent-yellow);
+    color: var(--accent-yellow);
+    text-decoration: none;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    background-color: var(--accent-yellow);
+    transition: width 0.4s var(--easing);
+    z-index: -1;
+}
+
+.contact-btn:hover {
+    color: var(--bg-color);
+}
+
+.contact-btn:hover::before {
+    width: 100%;
+}
+
+/* SVG Icon styling */
+.icon-svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+footer {
+    position: absolute;
+    bottom: 2rem;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    nav { padding: 1.5rem; }
+    .nav-links { display: none; } /* Simple hide for mobile, normally hamburger */
+    section { padding: 0 2rem; }
+    
+    .hero-title { font-size: 15vw; }
+    
+    #about { grid-template-columns: 1fr; text-align: center; }
+    .abstract-camera { height: 250px; }
+    
+    .gallery-grid { grid-template-columns: 1fr; height: auto; gap: 1rem; }
+    .gallery-item { height: 200px; }
+    .item-info { opacity: 1; transform: translateY(0); }
+    
+    .progress-bar { display: none; }
+    
+    /* Disable custom cursor on touch devices */
+    .cursor-dot, .cursor-outline { display: none; }
+    * { cursor: auto; }
+}
