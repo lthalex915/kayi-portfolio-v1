@@ -1,0 +1,696 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayi Tsoi | Portrait Photographer</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&amp;family=Inter:wght@200;300;400;500&amp;display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --bg-color: #050505;
+            --text-primary: #E0E0E0;
+            --text-secondary: #888888;
+            --accent-yellow: #F2E8C9; /* Light Cream/Yellow */
+            --accent-gray: #2A2A2A;
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-sans: 'Inter', sans-serif;
+            --easing: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Hiding default cursor for custom one */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow: hidden; /* Handled by main container */
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-yellow);
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(242, 232, 201, 0.5);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        body.hovered .cursor-outline {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(242, 232, 201, 0.1);
+            border-color: var(--accent-yellow);
+        }
+
+        /* --- LAYOUT & SCROLL SNAP --- */
+        main {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        section {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10vw;
+            overflow: hidden;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: difference;
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: var(--accent-yellow);
+            transition: width 0.4s var(--easing);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* --- PROGRESS INDICATOR --- */
+        .progress-bar {
+            position: fixed;
+            right: 4rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            z-index: 100;
+        }
+
+        .progress-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-gray);
+            border-radius: 50%;
+            transition: all 0.3s;
+            cursor: none; /* Handled by custom cursor */
+        }
+
+        .progress-dot.active {
+            background-color: var(--accent-yellow);
+            transform: scale(1.5);
+        }
+
+        /* --- TYPOGRAPHY & ANIMATIONS --- */
+        h1, h2 {
+            font-family: var(--font-serif);
+            font-weight: 300;
+            line-height: 1.1;
+        }
+
+        .reveal-text {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s var(--easing);
+        }
+
+        section.visible .reveal-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+
+        /* --- SECTION 1: HERO --- */
+        #home {
+            align-items: flex-start;
+        }
+
+        .hero-title {
+            font-size: 8vw;
+            color: var(--text-primary);
+            z-index: 2;
+        }
+
+        .hero-title span {
+            display: block;
+            color: var(--accent-yellow);
+            font-style: italic;
+        }
+
+        .hero-subtitle {
+            margin-top: 2rem;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        /* Abstract Light Effect */
+        .light-leak {
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(242, 232, 201, 0.15) 0%, rgba(5, 5, 5, 0) 70%);
+            filter: blur(60px);
+            animation: pulse 8s infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* --- SECTION 2: ABOUT --- */
+        #about {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-content h2 {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+        }
+
+        .about-content p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .abstract-camera {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* CSS Drawing of Abstract Aperture */
+        .aperture-ring {
+            width: 300px;
+            height: 300px;
+            border: 1px solid var(--accent-gray);
+            border-radius: 50%;
+            position: absolute;
+            animation: rotate 20s linear infinite;
+        }
+
+        .aperture-ring::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 1px solid var(--accent-yellow);
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .lens-flare {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(242, 232, 201, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 30%;
+            left: 30%;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- SECTION 3: PORTFOLIO (Abstract Placeholders) --- */
+        #portfolio {
+            align-items: center;
+        }
+
+        .portfolio-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 3rem;
+        }
+
+        .portfolio-header h2 {
+            font-size: 3rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            width: 100%;
+            height: 50vh;
+        }
+
+        .gallery-item {
+            position: relative;
+            border: 1px solid var(--accent-gray);
+            overflow: hidden;
+            transition: border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+        }
+
+        .gallery-item:hover {
+            border-color: var(--accent-yellow);
+        }
+
+        /* Abstract Art for Placeholders */
+        .art-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.3;
+            transition: opacity 0.5s;
+        }
+        
+        .gallery-item:hover .art-bg {
+            opacity: 0.6;
+        }
+
+        .art-1 { background: linear-gradient(45deg, #1a1a1a, #2a2a2a); }
+        .art-2 { background: radial-gradient(circle at top right, #2a2a2a, #050505); }
+        .art-3 { background: linear-gradient(135deg, #111, #333); }
+
+        /* Geometric shapes inside frames */
+        .geo-shape {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .circle { width: 100px; height: 100px; border-radius: 50%; }
+        .square { width: 80px; height: 80px; transform: translate(-50%, -50%) rotate(45deg); }
+        .line { width: 2px; height: 120px; background: rgba(255,255,255,0.1); }
+
+        .item-info {
+            z-index: 1;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.4s var(--easing);
+        }
+
+        .gallery-item:hover .item-info {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .item-title {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            color: var(--accent-yellow);
+        }
+
+        .item-cat {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* --- SECTION 4: CONTACT --- */
+        #contact {
+            align-items: center;
+            text-align: center;
+        }
+
+        .contact-container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .contact-title {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-yellow);
+        }
+
+        .contact-text {
+            margin-bottom: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2.5rem;
+            border: 1px solid var(--accent-yellow);
+            color: var(--accent-yellow);
+            text-decoration: none;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background-color: var(--accent-yellow);
+            transition: width 0.4s var(--easing);
+            z-index: -1;
+        }
+
+        .contact-btn:hover {
+            color: var(--bg-color);
+        }
+
+        .contact-btn:hover::before {
+            width: 100%;
+        }
+
+        /* SVG Icon styling */
+        .icon-svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 2rem;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            nav { padding: 1.5rem; }
+            .nav-links { display: none; } /* Simple hide for mobile, normally hamburger */
+            section { padding: 0 2rem; }
+            
+            .hero-title { font-size: 15vw; }
+            
+            #about { grid-template-columns: 1fr; text-align: center; }
+            .abstract-camera { height: 250px; }
+            
+            .gallery-grid { grid-template-columns: 1fr; height: auto; gap: 1rem; }
+            .gallery-item { height: 200px; }
+            .item-info { opacity: 1; transform: translateY(0); }
+            
+            .progress-bar { display: none; }
+            
+            /* Disable custom cursor on touch devices */
+            .cursor-dot, .cursor-outline { display: none; }
+            * { cursor: auto; }
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" data-cursor-dot=""></div>
+    <div class="cursor-outline" data-cursor-outline=""></div>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="#home" class="logo hover-trigger">KAYI TSOI</a>
+        <ul class="nav-links">
+            <li><a href="#home" class="hover-trigger">Home</a></li>
+            <li><a href="#about" class="hover-trigger">About</a></li>
+            <li><a href="#portfolio" class="hover-trigger">Work</a></li>
+            <li><a href="#contact" class="hover-trigger">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Vertical Progress Dots -->
+    <div class="progress-bar">
+        <div class="progress-dot active" data-target="home"></div>
+        <div class="progress-dot" data-target="about"></div>
+        <div class="progress-dot" data-target="portfolio"></div>
+        <div class="progress-dot" data-target="contact"></div>
+    </div>
+
+    <main id="main-scroll">
+        
+        <!-- Section 1: Hero -->
+        <section id="home">
+            <div class="light-leak"></div>
+            <h1 class="hero-title reveal-text">
+                Capturing <br>
+                <span>The Soul.</span>
+            </h1>
+            <p class="hero-subtitle reveal-text delay-1">
+                Kayi Tsoi is a portrait photographer specializing in emotive, high-contrast imagery that reveals the hidden narratives of her subjects.
+            </p>
+        </section>
+
+        <!-- Section 2: About -->
+        <section id="about">
+            <div class="about-content">
+                <h2 class="reveal-text">The Artist<br>Behind The Lens</h2>
+                <p class="reveal-text delay-1">
+                    Photography is not just about clicking a button; it's about framing a moment in time that speaks volumes. As a student expert, I blend technical precision with artistic intuition.
+                </p>
+                <p class="reveal-text delay-2">
+                    My approach is minimalist. I strip away the noise to focus on the raw emotion, using shadow and light as my primary tools.
+                </p>
+            </div>
+            <div class="abstract-camera reveal-text delay-3">
+                <div class="aperture-ring"></div>
+                <div class="lens-flare"></div>
+            </div>
+        </section>
+
+        <!-- Section 3: Portfolio -->
+        <section id="portfolio">
+            <div class="portfolio-header">
+                <h2 class="reveal-text">Selected Works</h2>
+            </div>
+            <div class="gallery-grid reveal-text delay-1">
+                <!-- Abstract Item 1 -->
+                <div class="gallery-item hover-trigger">
+                    <div class="art-bg art-1">
+                        <div class="geo-shape circle"></div>
+                    </div>
+                    <div class="item-info">
+                        <h3 class="item-title">Monochrome</h3>
+                        <span class="item-cat">Studio Portrait</span>
+                    </div>
+                </div>
+                <!-- Abstract Item 2 -->
+                <div class="gallery-item hover-trigger">
+                    <div class="art-bg art-2">
+                        <div class="geo-shape square"></div>
+                    </div>
+                    <div class="item-info">
+                        <h3 class="item-title">Golden Hour</h3>
+                        <span class="item-cat">Outdoor Light</span>
+                    </div>
+                </div>
+                <!-- Abstract Item 3 -->
+                <div class="gallery-item hover-trigger">
+                    <div class="art-bg art-3">
+                        <div class="geo-shape line"></div>
+                    </div>
+                    <div class="item-info">
+                        <h3 class="item-title">Silhouette</h3>
+                        <span class="item-cat">Abstract Form</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Contact -->
+        <section id="contact">
+            <div class="contact-container">
+                <h2 class="contact-title reveal-text">Let's Create</h2>
+                <p class="contact-text reveal-text delay-1">
+                    Available for freelance portrait sessions and artistic collaborations.
+                </p>
+                <a href="mailto:hello@kayitsoi.com" class="contact-btn hover-trigger reveal-text delay-2">
+                    <span>Get in Touch</span>
+                    <!-- SVG Arrow Icon -->
+                    <svg class="icon-svg" viewBox="0 0 24 24">
+                        <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+                    </svg>
+                </a>
+            </div>
+            <footer>
+                © 2023 Kayi Tsoi Photography. All Rights Reserved.
+            </footer>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- CUSTOM CURSOR LOGIC ---
+            const cursorDot = document.querySelector('[data-cursor-dot]');
+            const cursorOutline = document.querySelector('[data-cursor-outline]');
+            const hoverTriggers = document.querySelectorAll('.hover-trigger');
+
+            window.addEventListener('mousemove', (e) => {
+                const posX = e.clientX;
+                const posY = e.clientY;
+
+                // Dot follows immediately
+                cursorDot.style.left = `${posX}px`;
+                cursorDot.style.top = `${posY}px`;
+
+                // Outline follows with slight delay (using animate for smoothness)
+                cursorOutline.animate({
+                    left: `${posX}px`,
+                    top: `${posY}px`
+                }, { duration: 500, fill: "forwards" });
+            });
+
+            // Hover effects
+            hoverTriggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', () => {
+                    document.body.classList.add('hovered');
+                });
+                trigger.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('hovered');
+                });
+            });
+
+            // --- SECTION OBSERVER (Reveal Animations) ---
+            const sections = document.querySelectorAll('section');
+            const dots = document.querySelectorAll('.progress-dot');
+
+            const observerOptions = {
+                root: document.querySelector('#main-scroll'),
+                threshold: 0.5 // Trigger when 50% of section is visible
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Add visible class for text animations
+                        entry.target.classList.add('visible');
+
+                        // Update Progress Dots
+                        const id = entry.target.getAttribute('id');
+                        dots.forEach(dot => {
+                            dot.classList.remove('active');
+                            if (dot.dataset.target === id) {
+                                dot.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // --- SMOOTH SCROLL FOR NAV LINKS ---
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+        });
+    </script>
+
+
+</body></html>
